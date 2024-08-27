@@ -25,6 +25,9 @@ jobs:
   frontend:  
     name: Frontend Build and Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
     steps:
     
       - name: Checkout repository
@@ -33,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20.x'
+          node-version: ${{ matrix.node-version }}
           
       - name: Install Angular CLI
         run: npm install -g @angular/cli
@@ -45,3 +48,12 @@ jobs:
       - name: Build frontend
         run: ng build 
         working-directory: ./front
+        
+      - name: Run frontend test
+        run: npm run test:prod
+        
+    - name: Upload coverage report as a workflow artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: karma-report
+        path: front/coverage

@@ -51,6 +51,7 @@ jobs:
         
       - name: Run frontend test
         run: npm run test:prod
+        working-directory: ./front
         
       - name: Upload coverage report as a workflow artifact
         uses: actions/upload-artifact@v3

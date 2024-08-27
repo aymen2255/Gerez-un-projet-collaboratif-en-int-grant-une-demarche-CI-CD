@@ -13,10 +13,13 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: 11
-      - name: Build and test backend
-        run: |
-          cd backend
-          ./gradlew clean build test
+      - name: Build backend
+        run: mvn package
+        working-directory: ./back
+        
+      - name: Run backend tests
+        run: mvn test
+        working-directory: ./back
 
   frontend:
     runs-on: ubuntu-latest
@@ -29,10 +32,10 @@ jobs:
           node-version: 14
       - name: Install dependencies
         run: |
-          cd frontend
+          cd front
           npm ci
       - name: Build and test frontend
         run: |
-          cd frontend
+          cd front
           npm run build
           npm run test

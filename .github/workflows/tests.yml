@@ -66,37 +66,3 @@ jobs:
           name: karma-report
           path: front/coverage
           
-  sonarqube:
-    name: SonarQube Scan
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: back
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 17
-
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar-cache
-          restore-keys: |
-            ${{ runner.os }}-sonar-cache
-
-      - name: SonarQube Scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: |
-          mvn clean verify sonar:sonar \
-            -Dsonar.projectKey=BobApp \
-            -Dsonar.projectName='BobApp' \
-            -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.token=sqp_70def936817214aa46405e0bd6d4cc8dd27b9ba3

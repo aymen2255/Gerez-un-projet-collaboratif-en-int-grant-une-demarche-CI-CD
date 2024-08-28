@@ -93,8 +93,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          sonar-scanner \
+          mvn clean verify sonar:sonar \
             -Dsonar.projectKey=BobApp \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.projectName='BobApp' \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.token=sqp_70def936817214aa46405e0bd6d4cc8dd27b9ba3

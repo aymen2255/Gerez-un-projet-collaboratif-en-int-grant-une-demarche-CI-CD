@@ -69,7 +69,9 @@ jobs:
   sonarqube:
     name: SonarQube Scan
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: back
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

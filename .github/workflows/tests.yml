@@ -44,7 +44,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=BobApp
+        run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=aymen2255_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
      
   frontend:  
     name: Frontend Build and Test
@@ -90,9 +90,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: | 
-          sonar-scanner \
-            -Dsonar.organization=aymen2255 \
-            -Dsonar.projectKey=aymen2255_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=https://sonarcloud.io        
+          

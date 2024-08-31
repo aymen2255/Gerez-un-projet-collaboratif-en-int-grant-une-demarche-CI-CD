@@ -2,22 +2,8 @@ name: BackEnd CI CD
 
 on:
   push:
-    paths:
-      - 'back/**'
-      - '.github/workflows/**'
     branches:
       - main
-  pull_request:
-    paths:
-      - 'back/**'
-      - '.github/workflows/**'
-    branches:
-      - main
-    types:
-      - opened
-      - synchronize
-      - reopened
-
 jobs:
   backend_test_and_coverage:
     runs-on: ubuntu-latest
@@ -34,39 +20,22 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'adopt'
+          distribution: 'temurin'
 
-      - name: Cache Maven Packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2
-
-      - name: Cache Build Output
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-build-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
-
-      - name: Build and Test with Maven
-        run: mvn -B clean verify
-
-      - name: Upload Jacoco Report
+      - name: Build backend with Maven
+        run: mvn -B package --file pom.xml
+        
+      - name: Run test with Maven
+        run: mvn -B test --file pom.xml
+          
+      - name: Upload JaCoCo coverage report as a workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: back/target/site/jacoco/
-          overwrite: true
-          if-no-files-found: error
-
-      - name: Check sonar-project.properties
-        run: cat sonar-project.properties
+          path: back/target/site/jacoco
 
       - name: SonarCloud Scan
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar

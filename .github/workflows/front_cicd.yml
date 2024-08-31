@@ -50,6 +50,9 @@ jobs:
           path: ./front/coverage
           overwrite: true
           if-no-files-found: error
+          
+      - name: Verify Coverage Report
+        run: ls -l ./front/coverage/lcov.info
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

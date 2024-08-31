@@ -53,3 +53,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any 
           SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=aymen2255_bobapp-backend
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+            context: ./back
+            file: ./back/Dockerfile
+            push: true
+            tags: ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend:latest

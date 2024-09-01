@@ -4,8 +4,11 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches: [ "main" ]
+    
 jobs:
-  backend_test_and_coverage:
+  build-and-deploy-backend:
     runs-on: ubuntu-latest
 
     defaults:
@@ -28,29 +31,29 @@ jobs:
       - name: Run test with Maven
         run: mvn -B test --file pom.xml
           
-      - name: Upload JaCoCo coverage report as a workflow artifact
+      - name: Upload JaCoCo coverage report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
           path: back/target/site/jacoco
 
       - name: Cache SonarCloud packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
           
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
           
-      - name: Build and analyze
+      - name: Build and analyze with SonarQube
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=aymen2255_bobapp-backend
         

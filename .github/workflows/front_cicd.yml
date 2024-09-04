@@ -1,80 +1,80 @@
-name: FrontEnd CI CD
+name: FrontEnd CI CD  # Nom du workflow CI/CD pour le frontend
 
 on:
   push:
     branches:
-      - main
+      - main  # Déclenche le workflow sur les pushs vers la branche 'main'
   pull_request:
-    branches: [ "main" ]
-    
+    branches: [ "main" ]  # Déclenche le workflow sur les pull requests vers la branche 'main'
+    types: [opened, synchronize, reopened]  # Spécifie les types d'événements de pull request qui déclenchent le workflow
+
 jobs:
   build-and-deploy-frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Le job s'exécute sur la dernière version d'Ubuntu disponible sur GitHub Actions
 
     defaults:
       run:
-        working-directory: front
+        working-directory: front  # Définit le répertoire de travail par défaut pour les étapes du job
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [16.x]  # Utilisation de la stratégie matrix pour tester sur plusieurs versions de Node.js (ici 16.x)
 
     steps:
-      - name: Checkout
+      - name: Checkout  # Étape pour cloner le dépôt
         uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}  # Étape pour configurer Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ matrix.node-version }}  # Version de Node.js utilisée
 
-      - name: Cache Node Modules
+      - name: Cache Node Modules  # Étape pour mettre en cache les modules Node.js
         uses: actions/cache@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm  # Chemin du cache pour les modules Node.js
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}  # Clé basée sur le système d'exploitation et le fichier package-lock.json
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-  # Clés utilisées pour restaurer le cache si la clé principale ne correspond pas
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: Install Dependencies  # Étape pour installer les dépendances du projet
+        run: npm ci  # Utilisation de 'npm ci' pour une installation propre à partir du package-lock.json
 
-      - name: Build Angular Project
-        run: npm run build
+      - name: Build Angular Project  # Étape pour compiler le projet Angular
+        run: npm run build  # Compile l'application Angular
 
-      - name: Run Tests and Generate Code Coverage Report
-        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
+      - name: Run Tests and Generate Code Coverage Report  # Étape pour exécuter les tests et générer un rapport de couverture de code
+        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage  # Tests exécutés sans surveillance, en mode tête-less (sans interface graphique), avec génération de la couverture de code
 
-        
-      - name: Upload Code Coverage Report
+      - name: Upload Code Coverage Report  # Étape pour télécharger le rapport de couverture de code
         uses: actions/upload-artifact@v4
         with:
-          name: front-coverage-report
-          path: ./front/coverage/bobapp
-          overwrite: true
-          if-no-files-found: error
-          
-      - name: SonarCloud Scan
+          name: front-coverage-report  # Nom de l'artefact qui sera téléchargé
+          path: ./front/coverage/bobapp  # Chemin du rapport de couverture
+          overwrite: true  # Écrase les fichiers existants
+          if-no-files-found: error  # Provoque une erreur si aucun fichier n'est trouvé
+
+      - name: SonarCloud Scan  # Étape pour analyser le code avec SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
         with:
-          projectBaseDir: front
+          projectBaseDir: front  # Répertoire de base du projet à analyser
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_FRONT_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Set up Docker Buildx
+          SONAR_TOKEN: ${{ secrets.SONAR_FRONT_TOKEN }}  # Jeton SonarCloud pour authentification
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Jeton GitHub pour authentification
+
+      - name: Set up Docker Buildx  # Étape pour configurer Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      - name: Login to Docker Hub  # Étape pour se connecter à Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          
-      - name: Build and Push Docker Image
+          username: ${{ secrets.DOCKERHUB_USERNAME }}  # Nom d'utilisateur Docker Hub
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Mot de passe Docker Hub
+
+      - name: Build and Push Docker Image  # Étape pour construire et pousser l'image Docker
         uses: docker/build-push-action@v6
         with:
-            context: ./front
-            file: ./front/Dockerfile
-            push: true
-            tags: ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend:latest
+            context: ./front  # Contexte de construction (répertoire du frontend)
+            file: ./front/Dockerfile  # Chemin vers le Dockerfile
+            push: true  # Pousse l'image construite vers Docker Hub
+            tags: ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend:latest  # Tag de l'image Docker (dernier tag)

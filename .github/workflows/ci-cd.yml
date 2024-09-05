@@ -121,7 +121,13 @@ jobs:
           if-no-files-found: error  # Provoque une erreur si aucun fichier n'est trouvé
 
       - name: SonarCloud Scan  # Étape pour analyser le code avec SonarCloud
-        uses: SonarSource/sonarcloud-github-action@master
+        #uses: SonarSource/sonarcloud-github-action@master
+        run: |
+          sonar-scanner \
+            -Dsonar.organization=aymen2255 \
+            -Dsonar.projectKey=aymen2255_gerez-un-projet-collaboratif-en-int-grant-une-demarche-ci-cd \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=https://sonarcloud.io
         with:
           projectBaseDir: front  # Répertoire de base du projet à analyser 
         env:

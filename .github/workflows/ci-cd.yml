@@ -123,12 +123,7 @@ jobs:
       - name: SonarCloud Scan  # Étape pour analyser le code avec SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
         with:
-          projectBaseDir: ./front  # Répertoire de base du projet à analyser
-          args: >
-            -Dsonar.projectKey=aymen2255_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-            -Dsonar.organization=aymen2255  
-            -Dsonar.sources=./src/app
-            -Dsonar.javascript.lcov.reportPaths=./coverage/bobapp/lcov.info            
+          projectBaseDir: ./  # Répertoire de base du projet à analyser 
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Jeton SonarCloud pour authentification
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Jeton GitHub pour authentification

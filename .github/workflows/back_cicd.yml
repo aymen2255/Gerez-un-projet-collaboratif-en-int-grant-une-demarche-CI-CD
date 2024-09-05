@@ -1,0 +1,76 @@
+name: BackEnd CI CD  # Nom du workflow CI/CD
+
+on:
+  push:
+    branches:
+      - main  # Déclenche le workflow sur les pushs vers la branche 'main'
+  pull_request:
+    branches: [ "main" ]  # Déclenche le workflow sur les pull requests vers la branche 'main'
+    types: [opened, synchronize, reopened]  # Spécifie les types d'événements de pull request qui déclenchent le workflow
+
+jobs:
+  build-and-deploy-backend:
+    runs-on: ubuntu-latest  # Le job s'exécute sur la dernière version d'Ubuntu disponible sur GitHub Actions
+
+    defaults:
+      run:
+        working-directory: back  # Définit le répertoire de travail par défaut pour les étapes du job
+
+    steps:
+      - name: Checkout  # Étape pour cloner le dépôt
+        uses: actions/checkout@v4
+
+      - name: Set Up JDK 17  # Étape pour configurer le JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'  # Spécifie la version du JDK
+          distribution: 'zulu'  # Utilise la distribution Zulu de Java
+
+      - name: Build backend with Maven  # Étape pour compiler le projet avec Maven
+        run: mvn -B package --file pom.xml  # '-B' active le mode batch pour éviter les demandes d'interaction
+
+      - name: Run test with Maven  # Étape pour exécuter les tests unitaires avec Maven
+        run: mvn -B test --file pom.xml
+
+      - name: Upload JaCoCo coverage report  # Étape pour télécharger le rapport de couverture de code généré par JaCoCo
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report  # Nom de l'artefact qui sera téléchargé
+          path: back/target/site/jacoco  # Chemin du rapport de couverture
+
+      - name: Cache SonarCloud packages  # Étape pour mettre en cache les dépendances de SonarCloud
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache  # Chemin du cache de SonarCloud
+          key: ${{ runner.os }}-sonar  # Clé pour identifier le cache
+          restore-keys: ${{ runner.os }}-sonar  # Clés utilisées pour restaurer le cache si la clé principale ne correspond pas
+
+      - name: Cache Maven packages  # Étape pour mettre en cache les dépendances Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2  # Chemin du répertoire Maven local
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}  # Clé basée sur le système d'exploitation et le contenu du fichier pom.xml
+          restore-keys: ${{ runner.os }}-m2  # Clés utilisées pour restaurer le cache si la clé principale ne correspond pas
+
+      - name: Build and analyze with SonarQube  # Étape pour analyser le code avec SonarQube
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Jeton GitHub pour authentification
+          SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}  # Jeton SonarCloud pour authentification
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=aymen2255_bobapp-backend  # Analyse du projet avec SonarQube
+
+      - name: Set up Docker Buildx  # Étape pour configurer Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub  # Étape pour se connecter à Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}  # Nom d'utilisateur Docker Hub
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Mot de passe Docker Hub
+
+      - name: Build and Push Docker Image  # Étape pour construire et pousser l'image Docker
+        uses: docker/build-push-action@v6
+        with:
+            context: ./back  # Contexte de construction (répertoire du backend)
+            file: ./back/Dockerfile  # Chemin vers le Dockerfile
+            push: true  # Pousse l'image construite vers Docker Hub
+            tags: ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend:latest  # Tag de l'image Docker (dernier tag)

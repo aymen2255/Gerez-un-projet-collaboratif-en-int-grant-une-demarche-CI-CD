@@ -16,7 +16,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<sonar.organization>aymen2255</sonar.organization>
-		<sonar.projectKey>aymen2255_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD</sonar.projectKey>
+		<sonar.projectKey>aymen2255_bobapp-backend</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 	<dependencies>

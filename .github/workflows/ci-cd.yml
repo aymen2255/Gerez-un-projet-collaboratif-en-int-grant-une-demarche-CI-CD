@@ -120,10 +120,10 @@ jobs:
           overwrite: true  # Écrase les fichiers existants
           if-no-files-found: error  # Provoque une erreur si aucun fichier n'est trouvé
 
-      - name: SonarCloud Scan  ${{ matrix.app }}# Étape pour analyser le code avec SonarCloud
+      - name: SonarCloud Scan  ${{ runner.app }}# Étape pour analyser le code avec SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
         with:
-          projectBaseDir: ${{ matrix.app }}  # Répertoire de base du projet à analyser 
+          projectBaseDir: ${{ runner.app }}  # Répertoire de base du projet à analyser 
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Jeton SonarCloud pour authentification
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Jeton GitHub pour authentification

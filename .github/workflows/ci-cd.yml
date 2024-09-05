@@ -128,8 +128,6 @@ jobs:
             -Dsonar.projectKey=aymen2255_gerez-un-projet-collaboratif-en-int-grant-une-demarche-ci-cd \
             -Dsonar.sources=. \
             -Dsonar.host.url=https://sonarcloud.io
-        with:
-          projectBaseDir: front  # Répertoire de base du projet à analyser 
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Jeton SonarCloud pour authentification
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Jeton GitHub pour authentification

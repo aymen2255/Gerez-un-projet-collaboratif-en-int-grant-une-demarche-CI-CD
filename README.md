@@ -22,7 +22,9 @@ Launch Front-end:
 
 Build the container:
 
-> docker build -t bobapp-front .  
+> docker build -t bobapp-front .
+>
+> test
 
 Start the container:
 
